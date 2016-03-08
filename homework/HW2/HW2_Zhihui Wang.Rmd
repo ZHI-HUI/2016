@@ -26,7 +26,7 @@ you realize that the chance of red or black are both slightly less than 1/2. The
 Let's make a quick sampling model for this simple version of roulette. You are going to bet a dollar each time you play and always bet on black. Make a box model for this process using the `sample` function. Write a function `get_outcome` that takes as an argument the number of times you play $N$ and returns your earnings $S_N$.
 
 ```{r}
-##Your code here
+get_outcome <- function(N){return(sum(sample(c(-1,1), N, replace=TRUE, prob=c(10/19, 9/19))))}
 ```
 
 ## Problem 1B
@@ -34,37 +34,82 @@ Let's make a quick sampling model for this simple version of roulette. You are g
 Use Monte Carlo simulation to study the distribution of total earnings $S_N$ for $N=10,25,100,1000$. That is, study the distribution of earnings for different number of plays. What are the distributions of these two random variables? How do the expected values and standard errors change with $N$? Then do the same thing for the average winnings $S_N/N$. What result that you learned in class predicts this?
 
 ```{r}
-##Your code here
+N1 <- c(10, 25, 100, 1000)
+B <-10000
+## Total
+set.seed(101)
+totalearnings<-data.frame(replicate(B, get_outcome(10)), replicate(B, get_outcome(25)), replicate(B, get_outcome(100)), replicate(B, get_outcome(1000)))
+colnames(totalearnings)<-c("N10", "N25", "N100", "N1000")
+hist(totalearnings$N10)
+hist(totalearnings$N25)
+hist(totalearnings$N100)
+hist(totalearnings$N1000)
+
+expect<-apply(totalearnings, 2, mean)
+standerr<-(apply(totalearnings, 2, sd))
+expect
+standerr
+
+## Average
+avgearnings<-data.frame(replicate(B, get_outcome(10)/10), replicate(B, get_outcome(25)/25), replicate(B, get_outcome(100)/100), replicate(B, get_outcome(1000)/1000))
+colnames(avgearnings)<-c("N10", "N25", "N100", "N1000")
+hist(avgearnings$N10)
+hist(avgearnings$N25)
+hist(avgearnings$N100)
+hist(avgearnings$N1000)
+
+expect.avg<-apply(avgearnings, 2, mean)
+standerr.avg<-(apply(avgearnings, 2, sd))/sqrt(N1)
+expect.avg
+standerr.avg
 ```
 
 Your answer here.
 
+Answer:
+1) The absolutely values of expected total earnings ($S_N$) increases proportionally with with the number of plays (n); their standard errors increase proportionally with the the square root of n.
+2) The values of expected average earnings ($S_N/N$) remain constant as n increases; their standard errors decrease proportionally with the the square root of n.
+3) The distributions of total earnings and average earnings are approximately normal with large Ns.
+4) The average earning is the sampling distribution in class, and the law of large numbers tell us the bigger n the closer the sample mean gets to the population mean.
 
 ## Problem 1C
 
 What is the expected value of our sampling model? What is the standard deviation of our sampling model?
 
 Your answer here.
+For a single play, the expected value of earnings is: 1*9/19 + (-1)*10/19 = -1/19 = -0.0526; and the standard deviation is: |1-(-1)|*sqrt(9/19*10/19) = 0.9986.
+The expected vaulues for toatal earnings (S_N) are -1/19*n = -0.0526n with the standard errors equal to 0.9986*sqrt(n).
+The expected values for average earnings (S_N/N) are -1/19 with the standard errors equal to 0.9986/sqrt(n).
 
 ## Problem 1D
 
 Use CLT to approximate the probability that the casino loses money when you play 25 times. Then use a Monte Carlo simulation to confirm.
 
 ```{r}
-##Your code here
+## CLT
+1-pnorm(0, mean = -1/19*25, sd = 2*sqrt(25*9/19*10/19))
+
+## Monte Carlo
+set.seed(102)
+MC.est<-sum(replicate(B, get_outcome(25))>0)/B
+MC.est
 ```
-
-
 
 ## Problem 1E
 
 In general, what is the probability that the casino loses money as a function of $N$? Make a plot for values ranging from 25 to 1,000. Why does the casino give you free drinks if you keep playing?
 
 ```{r}
-##Your code here
+## Monte Carlo
+prob_casinolose <- function(N){sum(replicate(B, get_outcome(N))>0)/B}
+N2 <- c(25, 50, 100, 200, 400, 600, 800, 1000)
+prob <- c(prob_casinolose(25),prob_casinolose(50),prob_casinolose(100),prob_casinolose(200),prob_casinolose(400),prob_casinolose(600),prob_casinolose(800),prob_casinolose(1000))
+plot(N2, prob)
 ```
 
 Your answer here. 
+
+Answer: As time of plays (n) increases, the probability that the casino is going to lose money decreases. Therefore, the casino wish to keep people to play longer (increase n) by providing people with free drinks.
 
 # Problem 2 
 
@@ -75,16 +120,30 @@ You run a bank that has a history of identifying potential homeowners that can b
 Your bank gives out 1,000 loans this year. Create a sampling model and use the function `sample` to simulate the number of foreclosure in a year with the information that 2% of customers default. Also suppose your bank loses $120,000 on each foreclosure. Run the simulation for one year and report your loss.
 
 ```{r}
-##your code here
+set.seed(103)
+loss <- function(N){sum(sample(c(-120000,0), N, replace=TRUE, prob=c(0.02,0.98)))}
+loss(1000)
 ```
+
+Answer: my year loss is $1320,000 for one year.
 
 ## Problem 2B
 
 Note that the loss you will incur is a random variable. Use Monte Carlo simulation to estimate the distribution of this random variable. Use summaries and visualization to describe your potential losses to your board of trustees.
 
 ```{r}
-##your code here
+set.seed(104)
+moneyloss <- function(N){return(replicate(B,loss(N)))}
+hist(moneyloss(1000))
+qqnorm(moneyloss(1000));qqline(moneyloss(1000))
+mean_loss <- mean(moneyloss(1000))
+mean_loss
+sd_loss <- sd(moneyloss(1000))
+sd_loss
 ```
+
+Answer:
+The distribution of the annual loss is approximtely normal, with expected annual loss equal to 2404404 dollars and standard deviation equal to 530959.2 dollars.
 
 ## Problem 2C
 
@@ -92,17 +151,31 @@ The 1,000 loans you gave out were for $180,000. The way your bank can give out l
 
 Your solution here. 
 ```{r}
-###your code here
+interest.rate <- (100+120000*0.02)/(180000*0.98)
+interest.rate
+set.seed(106)
+revenue <- function(N){return(sum(sample(c(-120000,180000*interest.rate),N,replace=TRUE,prob=c(0.02,0.98))))}
+revenue.mc <- function(N){replicate(B,revenue(N))}
+hist(revenue.mc(1000))
+qqnorm(revenue.mc(1000));qqline(revenue.mc(1000))
+mean_revenue <- mean(revenue.mc(1000))
+mean_revenue
+sd_revenue <- sd(revenue.mc(1000))
+sd_revenue
 ```
 
+Answer: the interest rate should be 1.42% so that my expected profit total is $100,000.
 
 ## Problem 2D
 
 In problem 2C, you were able to set a very low interest rate. Your customers will be very happy and you are expected to earn $100,000 in profits. However, that is just an expectation. Our profit is a random variable. If instead of a profit your bank loses money, your bank defaults. Under the conditions of Problem 2C, what is the probability that your profit is less than 0?
 
 ```{r}
-##your code here
+prob_moneyloss <- sum(revenue.mc(1000)<0)/B
+prob_moneyloss 
 ```
+
+Answer: Using Monte Carlo simulation, the probability that the profit is less than 0 is 44.33%.
 
 ## Problem 2E
 
@@ -113,8 +186,29 @@ Hint: Use the following short cut. If $p$ fraction of a box are $a$s and $(1-p)$
 Your solution here.
 
 ```{r}
-###your code here
+qnorm(0.001)
+expected.profit <- 1000*(-120000*0.02+180000*0.0232*0.98)
+expected.profit
+
+revenue2 <- function(N){return(sum(sample(c(-120000,180000*0.0232),N,replace=TRUE,prob=c(0.02,0.98))))}
+revenue.mc2 <- function(N){replicate(B,revenue2(N))}
+hist(revenue.mc2(1000))
+qqnorm(revenue.mc2(1000));qqline(revenue.mc2(1000))
+mean_revenue2 <- mean(revenue.mc2(1000))
+mean_revenue2
+sd_revenue2 <- sd(revenue.mc2(1000))
+sd_revenue2
+
+prob_moneyloss2 <- sum(revenue.mc2(1000)<0)/B
+prob_moneyloss2 
 ```
+
+Answer:
+qnorm(0.001) = -3.09. Therefore, we need the mu - 0 to be 3.09 SD.
+E(revenue) = -120000*0.02 + 180000*0.98*interest
+SD(revenue) = |180000*interest-(-120000)|*sqrt(0.02*0.98)/sqrt(1000)
+Solve for interest, we get interest = 0.0232
+The expected profit would be 1692480 dollars. Using Monte Carlo simulation, the probability of losing money would be 0.0028, which is slightly higher than 0.001.
 
 ## Problem 2F
 
@@ -123,11 +217,47 @@ Hint: See if the disparity is smaller for larger values of $p$. Also check for p
 
 
 ```{r}
-##your code here
+#Let p = 0.03
+#Solve for (-120000*0.03+180000*I*0.97)  = 3.09*|-120000-180000*I|*sqrt(0.03*0.97/1000)
+#We get I = 0.0326
+
+expected.profit2 <- 1000*(-120000*0.03+180000*0.0326*0.97)
+expected.profit2
+
+revenue3 <- function(N){return(sum(sample(c(-120000,180000*0.0326),N,replace=TRUE,prob=c(0.03,0.97))))}
+revenue.mc3 <- function(N){replicate(B,revenue3(N))}
+hist(revenue.mc3(1000))
+qqnorm(revenue.mc3(1000));qqline(revenue.mc3(1000))
+mean_revenue3 <- mean(revenue.mc3(1000))
+mean_revenue3
+sd_revenue3 <- sd(revenue.mc3(1000))
+sd_revenue3
+
+prob_moneyloss3 <- sum(revenue.mc3(1000)<0)/B
+prob_moneyloss3 
+
+#Check for probability of losing money = 0.01
+qnorm(0.01)
+#Solve for (-120000*0.02+180000*I*0.98)  = 2.326*|-120000-180000*I|*sqrt(0.02*0.98/1000)
+#We get I = 0.0208
+expected.profit3 <- 1000*(-120000*0.02+180000*0.0208*0.98)
+expected.profit3
+
+revenue4 <- function(N){return(sum(sample(c(-120000,180000*0.0208),N,replace=TRUE,prob=c(0.02,0.98))))}
+revenue.mc4 <- function(N){replicate(B,revenue4(N))}
+hist(revenue.mc4(1000))
+qqnorm(revenue.mc4(1000));qqline(revenue.mc4(1000))
+mean_revenue4 <- mean(revenue.mc4(1000))
+mean_revenue4
+sd_revenue4 <- sd(revenue.mc4(1000))
+sd_revenue4
+
+prob_moneyloss4 <- sum(revenue.mc4(1000)<0)/B
+prob_moneyloss4 
 ```
 
-
 Your answer here.
+Answer: We used a normal approximation of binomial distribution to simulate the distribution of revenue. As we can see from the qq plot, the distribution deviates from the normal distribution at two tails, making the estimates from normal distribution less accurate. The normal approximation would be better with larger value of npq, therefore, as p increases, the dispariity would get smaller. Here, by increasing p to 0.003, the probability of losing money by Monte Carlo simulation decreases to 0.002. Also, as we calculate the probability of lose money equal to 0.01, the probability estimate from the Monte Carlo simulation gets closer to the expectd probability.
 
 ## Problem 3
 
@@ -137,16 +267,30 @@ We were able to set an interest rate of about 2% that guaranteed a very low prob
 
 The pool of borrowers they found had a much higher default rate, estimated to be $p=0.05$. What interest rate would give these companies the same expected profit as your bank (Answer to 2E)? 
 
-```{r}
-##your code here
-```
+Answer: If they wish to make the same expected profit as our bank, which is  1692480 dollars, they need to set the interest rate I that 1000*(-120000*0.05 + 180000*I*0.95) = 1692480. Solving for I, we get I = 0.0450.
 
 ## Problem 3B 
 
 At the interest rate calculated in 3A what is the probability of negative profits? Use both the normal approximation and then confirm with a Monte Carlo simulation.
 
 ```{r}
-##your code here
+#Normal approximation
+mean_revenue5 <- (-120000*0.05+180000*0.0450*0.95)*1000
+sd_revenue5 <- (120000+180000*0.0450)*sqrt(0.05*0.95)*sqrt(1000)
+pnorm(0,mean = mean_revenue5, sd=sd_revenue5)
+
+#Monte Carlo
+revenue3 <- function(N){return(sum(sample(c(-120000,180000*0.0326),N,replace=TRUE,prob=c(0.03,0.97))))}
+revenue.mc3 <- function(N){replicate(B,revenue3(N))}
+hist(revenue.mc3(1000))
+qqnorm(revenue.mc3(1000));qqline(revenue.mc3(1000))
+mean_revenue3 <- mean(revenue.mc3(1000))
+mean_revenue3
+sd_revenue3 <- sd(revenue.mc3(1000))
+sd_revenue3
+
+prob_moneyloss3 <- sum(revenue.mc3(1000)<0)/B
+prob_moneyloss3 
 ```
 
 ## Problem 3C 
@@ -212,3 +356,6 @@ Generate a simulation with correlated outcomes such as those above. This time us
 ## Problem 4
 
 Read [this wikipedia page](https://en.wikipedia.org/wiki/Financial_crisis_of_2007%E2%80%9308) about the financial crisis. Write a paragraph describing how what you learned in this homework can help explain the conditions that led to the crisis.
+
+Answer:
+

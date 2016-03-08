@@ -71,7 +71,8 @@ prop.table(table(x))
 ```
 
 Pollsters try to _estimate_ $p$ but asking 1 million people and actually unnecessary so instead. They take a poll. To do this they take a random sample. They pick $N$ random voter phone numbers, call, and ask. Assuming everybody answers and every voter has a phone, we can mimic a random sample of 100 people with:
-
+usually use capital letter to denote random sample;
+small letter to denote nonrandomness;
 ```{r}
 poll <- sample(x, 25, replace = TRUE)
 ```
@@ -80,6 +81,7 @@ The pollster then looks at the proportion of democrats in the sample and uses th
 
 ```{r}
 table(poll)
+prop.table(table(poll))
 ```
 
 So our poll predicts a democrat win! Is this a good _estiamte_? We will see how powerful mathematical statistics is at informing us about exactly how good it is.
@@ -127,6 +129,12 @@ X <- sample( c(-1,1), 10, replace = TRUE, prob=c(10/19, 9/19))
 sum(X)
 ```
 
+Assessment: Develop a sampling model for betting on 7 on roulette:
+```{r}
+Y <- sample( c(-1,35), 10, replace = TRUE, prob=c(37/38, 1/38))
+sum(Y)
+```
+
 
 ## The Expected Value and Standard Error
 
@@ -146,8 +154,10 @@ We can see that the average of values inside a jar with 0s and 1s is the number 
 #### Assessment: 
 
 What are the averages for the roulette examples? 
-- Betting on black 
+- Betting on black
+#18/38*1+20/38*(-1)=-0.0526
 - Betting on 7
+#1/38*35+37/38*(-1)=-0.0526
 
 In our example with the election we know that the average of the box is $p$, we just don't know what $p$ is just yet.
 

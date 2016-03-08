@@ -135,7 +135,7 @@ x
 ```
 
 We can quickly see that, for example $F(0) = 2/5$:
-
+(F(1)=1)
 ```{r}
 mean(x <= 0)
 ```
@@ -176,6 +176,10 @@ $$\mbox{Pr}(\mbox{second card is } 3\heartsuit \mid \mbox{first card is not } 3\
 
 Before continuing we quickly introduce the `paste` function which can be quite useful. We use it to create strings by joining smaller strings. For example, if we have the number of suit of card we can get the card name like this:
 
+could also use:
+paste(number, suit, sep=" , ")
+#or
+paste0(number, suit)
 ```{r}
 number <- "Three"
 suit <- "Hearts"
@@ -243,14 +247,21 @@ But we have to be very careful here, as assuming independence can result in very
 
 ### Birthday Problem
 
-There are 50 people in this room. What is the chance that at least two people have the same birthday?
+There are 42 people in this room. What is the chance that at least two people have the same birthday?
 
 We can use a Monte Carlo simulation.
 
-Assessment: Use `sample` to randomly select 50 birthdays. Check if they are unique.
+Assessment: Use `sample` to randomly select 42 birthdays. Check if they are unique.
 
 ```{r}
-##your code here
+bdays = sample(1:365,42,replace=TRUE)
+length(unique(bdays))
+duplicated (bdays)
+any(duplicated(bdays))
+sum(duplicated(bdays))
+table(table(bdays))
+p42 = replicate(10000,any(duplicated(sample(1:365,42,replace=TRUE))))
+mean(p42)
 ```
 
 ```{r birthday-problem}
