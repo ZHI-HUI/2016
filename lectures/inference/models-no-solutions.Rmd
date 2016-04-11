@@ -206,7 +206,7 @@ We can compare this empirical approach to the more theoretical approach we have 
 theta <- mean(y)
 sd(Y) ##compared to 
 sqrt(theta*(1-theta))/sqrt(100) ##or to
-theta_hat <- mean(Y)
+theta_hat<- mean(Y)
 sqrt(theta_hat*(1-theta_hat))/sqrt(100) ##or to
 ```
 
@@ -327,7 +327,7 @@ head(tab$`N/Pop`)
 This column combines the sample size with the type population used by the poll. For example, LV means Likely Voters. We can use split again.
 
 ```{r}
-tab <- separate(tab, `N/Pop`, into=c("N","population_type"), sep="\ ", convert=TRUE, fill="left")
+tab <- separate(tab, `N/Pop`, into=c("N","population_type"), sep=" ", convert=TRUE, fill="left")
 ```
 
 
@@ -339,7 +339,7 @@ tab <- mutate(tab, Obama = as.numeric(Obama)/100,
               McCain=as.numeric(McCain)/100,
               diff = Obama - McCain,
               day=as.numeric(start_date - mdy("11/04/2008")),
-              week = as.numeric(floor(day/7)))
+              week = floor(day/7))
 ```
 
 ## Modeling Poll Results (continued)
@@ -384,7 +384,7 @@ Y <- filter(tab, N==800)$diff
 theta <- 7.2/100
 error <- Y- theta
 hist(error)
-se <- sqrt(theta*(1-theta)/800)
+se <- 2*sqrt(theta*(1-theta)/800)
 qqnorm(error/se)
 abline(0,1)
 ```

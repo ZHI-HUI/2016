@@ -386,8 +386,7 @@ standard deviation $\sigma$ should be given by
 $\frac{2\sqrt{p (1-p)}}{\sqrt{n}}$.
 
 #### Assessment 
-Use the poll data above (i.e. polls within 5 weeks of the 
-election and for polls that had a sample size of 1000), 
+Use the poll data above (i.e. polls after Jan 1 2008, and for polls that had a sample size of 1000), 
 estimate $\theta$ and $\sigma$ using the statistical 
 theory from the CLT. 
 
@@ -404,8 +403,7 @@ tab %>%
 
 
 #### Assessment 
-In contrast, use the poll data above (polls within 5 weeks of the 
-election and for polls that had a sample size of 1000) to 
+In contrast, use the poll data above (polls after Jan 1, 2008 and for polls that had a sample size of 1000) to 
 estimate $\sigma$ using the sample standard deviation. 
 
 $$ s = \sqrt{ \frac{1}{N-1}\sum_{i=1}^N (Y_i - \bar{Y})^2} $$

@@ -118,6 +118,8 @@ Say before seeing any poll data, you have no idea who is going to win.
 What should $\mu$ be? What about $\tau$? 
 
 **Your answer here**:
+mu=0
+tau should be generally big
 
 
 Now, let's assume we are part of the republican party and we 
@@ -132,8 +134,10 @@ what is the probability that Obama will beat
 McCain in the 2008 presidential election? 
 
 ```{r}
-##Your code here
-
+mu_prior = -0.15
+tau_prior = 5
+1-pnorm(0, mu_prior, tau_prior)
+1-pnorm(0.15/5)
 ```
 
 
@@ -257,8 +261,9 @@ and an estimate of the standard deviation $\sigma$
 the statistical theory from the CLT).
 
 ```{r}
-##Your code here.
-
+tab %>% 
+    filter(start_date<"2008-01-01") %>%
+    summarize(theta_hat = mean(diff), sigma_hat = sd(diff))
 ```
 
 Last week, we also a scatter plot showing the number of polls 
@@ -279,8 +284,7 @@ In which weeks before the election were there
 at least five or more polls in a given week. 
 
 ```{r}
-##Your code here.
-
+tab %>% group_by(week) %>% summarize(num_polls=n()) %>% filter(num_polls>=5)
 ```
 
 #### Assessment 
@@ -302,8 +306,18 @@ mean and standard deviation.
 
 
 ```{r}
-##Your code here.
+tab %>% filter(start_date>"2008-01-01" & week <=-30) %>% group_by(week) %>% mutate(num_polls=n()) %>% filter(num_polls>=5) %>% ungroup() %>% summarize(theta_hat=mean(diff),sigma_hat=sd(diff)) 
 
+tabEst <- tab %>% 
+    filter(start_date>"2008-01-01" & week <= -30) %>%
+    group_by(week) %>% 
+    mutate(num_polls=n()) %>%
+    filter(num_polls >= 5) %>% 
+    ungroup() %>% 
+    summarize(theta_hat = mean(diff), 
+              sigma_hat = sd(diff), 
+              tot_poll = n())
+tabEst
 ```
 
 
@@ -313,8 +327,8 @@ a confidence interval for $\hat{\theta}$ using the empirical
 approach to estimate the standard deviation $\sigma$. 
 
 ```{r}
-##Your code here
-
+tabEst$theta_hat + 
+    c(-1,1) * (tabEst$sigma_hat / sqrt(tabEst$tot_poll)) * qnorm(0.975)
 ```
 
 #### Assessment
@@ -365,7 +379,12 @@ estimate $\theta$ and $\sigma$ using the statistical
 theory from the CLT. 
 
 ```{r}
-##Your code here.
+tab %>% 
+    filter(week>-5 & N == 1000) %>%
+    summarize(total_polls = n(), 
+              poll_size = unique(N),
+              theta_hat = mean(diff), 
+              sigma_hat_theoretical = 2*sqrt(mean(Obama)*(1-mean(Obama))) / sqrt(unique(N)))
 
 ```
 
@@ -379,7 +398,12 @@ $$ s = \sqrt{ \frac{1}{N-1}\sum_{i=1}^N (Y_i - \bar{Y})^2} $$
 
 How does it compare to the estimate of $\sigma$ above using the CLT? 
 ```{r}
-##Your code here.
+tab %>% 
+    filter(week>-5 & N == 1000) %>%
+    summarize(total_polls = n(), 
+              poll_size = unique(N),
+              theta_hat = mean(diff), 
+              sigma_hat_empirical = sd(diff) )
 
 ```
 

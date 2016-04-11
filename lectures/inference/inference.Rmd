@@ -420,7 +420,7 @@ The function `sd` computes this quantity
 
 ```{r}
 Y <- sample(y, N, replace=TRUE)
-sd(X)
+sd(Y)
 1 - pnorm(sqrt(N)/sd(Y))
 #is an approximation of
 1 - pnorm(sqrt(N)/sigma)
@@ -429,7 +429,7 @@ sd(X)
 
 
 ### The t-distribution (optional)
-
+# the underlying distribution of y has to be normal to use t distribution
 If you have heard of the t-distribution, you should know that here is where we would use it. If the original data is normal, as height data is, then there is a better approximation for 
 
 $$\sqrt{N} \frac{\bar{X} - \mu}{s}$$
@@ -541,7 +541,7 @@ conf_int
 3. Does the interval cover the true value of `prob_head`?
 
 ```{r}
-prob_heads>=ci[1] & prob_heads<=ci[2]
+prob_heads>=conf_int[1] & prob_heads<=conf_int[2]
 ```
 
 4. No use a Monte Carlo simulation to re run this experiment (keeping `prob_hear` fixed) 10000 times. Do we confirm that we cover 95% of the time?
