@@ -103,7 +103,6 @@ p <- ggplot(dat2, aes(X, Y)) +
   geom_vline(aes(xintercept = center, frame = center), lty = 2) +
   geom_point(shape = 1, data = dat, alpha = .5,cex=5) +
   geom_line(aes(x=X, y = .fitted, frame = X, cumulative = TRUE), data = bin_fit, color = "red") + ggtitle("x0 = ")
-
 gg_animate(p, "binsmoother1.gif", ani.width = 1050, ani.height = 525, interval=0.15)
 ```
 
